@@ -7,10 +7,22 @@ from matplotlib import pyplot as plt
 threshval = (80,255)
 
 # normaize the grayscale image
+# NO LONGER SIGNIFICANT, ONLY USE WHEN CREATING CUSTOM FILTERS
 def nm(img):
-   normalizedImg = np.zeros(img.shape)
-   return cv2.normalize(img, normalizedImg, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+	normalizedImg = np.zeros(img.shape)
+	return cv2.normalize(img, normalizedImg, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
+# Image Resizing function
+def imgresize(timg, scale_percent):
+	width = int(img.shape[1] * scale_percent / 100)
+	height = int(img.shape[0] * scale_percent / 100)
+	dim = (width, height)
+
+	# resize image
+	return cv2.resize(img, dim, interpolation = cv2.INTER_AREA) 
+
+
+# Read File name
 file = sys.argv[1]
 
 
@@ -22,19 +34,15 @@ print('Reading from file: ',file)
 disp = 1
 
 # Read an image
-#img = cv2.imread('template.jpg')
-
-# img = cv2.imread('TCCAGE23096-RINGLIGHTONLY-3.jpg', 0)
 img = cv2.imread(file, 0)
+imgorig = cv2.imread(file)
 
-# Resize image if needed
-scale_percent = 50
-width = int(img.shape[1] * scale_percent / 100)
-height = int(img.shape[0] * scale_percent / 100)
-dim = (width, height)
-# resize image
-gray = cv2.resize(img, dim, interpolation = cv2.INTER_AREA) 
+# Resize the image
+gray = imgresize(img, 50)
+imgorig = imgresize(imgorig, 50)
 
+# Converting grayscale to RGB for contour visualization 
+imgorig = cv2.merge([imgorig,imgorig,imgorig])
 
 
 # Show both images
@@ -111,7 +119,9 @@ cv2.imshow('Morphology', ret)
 
 
 # Calculate Contours
+contours, hierarchy = cv2.findContours(ret, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(imgorig, contours, -1, (0,255,0), 1)
 
-
+cv2.imshow('Contours', imgorig)
 
 cv2.waitKey()
